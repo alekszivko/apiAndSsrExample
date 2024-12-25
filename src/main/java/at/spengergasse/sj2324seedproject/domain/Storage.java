@@ -26,7 +26,8 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 public class Storage extends AbstractPersistable<Long> {
 
 
-    @Column(name="storage_name", length = 128)
+    protected static final int NAME_LENGTH = 128;
+    @Column(name="storage_name", length = NAME_LENGTH)
     private @NotNull @NotEmpty @NotBlank String name;
 
 

@@ -1,6 +1,5 @@
 package at.spengergasse.sj2324seedproject.fixture;
 
-import at.spengergasse.sj2324seedproject.constants.ConstantsDomain;
 import at.spengergasse.sj2324seedproject.domain.Address;
 import at.spengergasse.sj2324seedproject.domain.Customer;
 import at.spengergasse.sj2324seedproject.domain.Producer;
@@ -24,7 +23,7 @@ public class FixtureFactory {
 
   private static final ApiKeyGenerator keyGen = new ApiKeyGenerator();
 
-  ///////////////////////////////////// Producer
+  /// ////////////////////////////////// Producer
 
 
   public static Producer producerFixture() {
@@ -34,7 +33,7 @@ public class FixtureFactory {
         .build();
   }
 
-  ///////////////////////////////////// StorageObjectMeta
+  /// ////////////////////////////////// StorageObjectMeta
 
   public static StorageObjectMeta storageObjectMetaFixture() {
     return StorageObjectMeta.builder()
@@ -67,7 +66,7 @@ public class FixtureFactory {
     return producersListe;
   }
 
-  ///////////////////////////////////// StorageObject
+  /// ////////////////////////////////// StorageObject
 
   public static StorageObject storageObjectFixture() {
     return StorageObject.builder()
@@ -76,7 +75,7 @@ public class FixtureFactory {
         .apiKeyID(keyGen.getRandomKey(16))
         .storedStorage(storageFixture())
         .serialNumber("abcd1234")
-        .macAddress(ConstantsDomain.DEFAULT_MAC)
+        .macAddress("ff-ff-ff-ff-ff-ff")
         .remark("this is a remark1")
         .projectDevice(true)
         .storedAtCustomer(customerFixture())

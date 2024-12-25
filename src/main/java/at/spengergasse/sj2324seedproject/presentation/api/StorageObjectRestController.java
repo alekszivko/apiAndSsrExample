@@ -1,59 +1,43 @@
 package at.spengergasse.sj2324seedproject.presentation.api;
 
-import at.spengergasse.sj2324seedproject.domain.StorageObject;
+import static at.spengergasse.sj2324seedproject.presentation.api.StorageObjectRestController.BASE_URL;
+
 import at.spengergasse.sj2324seedproject.presentation.api.dtos.StorageObjectDTO;
 import at.spengergasse.sj2324seedproject.service.StorageObjectService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
-
-import static at.spengergasse.sj2324seedproject.constants.ConstantsDomain.URI_BASE_STORAGEOBJECT;
-import static at.spengergasse.sj2324seedproject.constants.ConstantsDomain.URI_BASE_STORAGEOBJECT_MAC;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(URI_BASE_STORAGEOBJECT)
+@RequestMapping(BASE_URL)
 public class StorageObjectRestController {
 
-    //    @Autowired
-    //    private final RepositoryStorageObject repositoryStorageObject;
+  protected static final String BASE_URL = "/api/storageObjects";
 
-    @Autowired
-    private final StorageObjectService serviceStorageObject;
 
-    @GetMapping
-    public HttpEntity<List<StorageObjectDTO>> fetchStorageObjects(){
-        return Optional.of(serviceStorageObject.fetchStorageObjectsList())
-                       .filter(stoObject -> !stoObject.isEmpty())
-                       .map(storageObject -> storageObject.stream()
-                                                          .map(StorageObjectDTO::new)
-                                                          .toList())
-                       .map(storageObjectDTOS -> ResponseEntity.ok(storageObjectDTOS))
-                       .orElse(ResponseEntity.noContent()
-                                             .build());
-    }
+  private final StorageObjectService storageObjectService;
 
-    @GetMapping(URI_BASE_STORAGEOBJECT_MAC)
-    public ResponseEntity<StorageObjectDTO> fetchOneStorageObjectByMAC(
-            @RequestParam
-            Optional<String> macAddress){
-        StorageObject storageObjectMac = serviceStorageObject.findStorageObjectMac(macAddress);
-        return (storageObjectMac != null) ? ResponseEntity.ok()
-                                                          .body(new StorageObjectDTO(storageObjectMac)) : ResponseEntity.noContent()
-                                                                                                                        .build();
+  @GetMapping
+  public HttpEntity<List<StorageObjectDTO>> fetchStorageObjects() {
+    return ResponseEntity.ok(storageObjectService.findAll()
+        .stream()
+        .map(StorageObjectDTO::new)
+        .toList());
 
-        //        return serviceStorageObject.findStorageObjectByMac(macAddress)
-        //                                   .map(StorageObjectDTO::new)
-        //                                   .map(ResponseEntity::ok)
-        //                                   .orElseGet(() -> ResponseEntity.notFound()
-        //                                                                  .build());
-    }
+  }
+
+  @GetMapping({"/mac"})
+  public ResponseEntity<StorageObjectDTO> fetchOneStorageObjectByMAC(String mac) {
+
+    return storageObjectService.findStorageObjectByMac(mac).map(StorageObjectDTO::new)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.noContent()
+            .build());
+  }
 }
