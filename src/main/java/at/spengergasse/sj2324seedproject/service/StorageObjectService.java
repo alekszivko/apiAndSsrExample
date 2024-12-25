@@ -5,7 +5,7 @@ import at.spengergasse.sj2324seedproject.domain.Customer;
 import at.spengergasse.sj2324seedproject.domain.Storage;
 import at.spengergasse.sj2324seedproject.domain.StorageObject;
 import at.spengergasse.sj2324seedproject.foundation.ApiKeyGenerator;
-import at.spengergasse.sj2324seedproject.persistence.RepositoryStorageObject;
+import at.spengergasse.sj2324seedproject.persistence.StorageObjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -19,35 +19,35 @@ import java.util.stream.Stream;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ServiceStorageObject{
+public class StorageObjectService {
 
-    private final RepositoryStorageObject repositoryStorageObject;
+    private final StorageObjectRepository storageObjectRepository;
     private final ApiKeyGenerator         apiKeyGenerator;
 
     @Transactional(readOnly = true)
     public List<StorageObject> findAll(){
-        return repositoryStorageObject.findAll();
+        return storageObjectRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     public List<StorageObject> fetchStorageObjectsList(){
-        return repositoryStorageObject.findAll();
+        return storageObjectRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     public Stream<StorageObject> fetchStorageObjectsStream(Optional<String> searchParam){
-        return repositoryStorageObject.findAll()
+        return storageObjectRepository.findAll()
                                       .stream();
     }
 
     @Transactional(readOnly = true)
     public Optional<StorageObject> findStorageObjectByMac(Optional<String> macAddress){
-        return Optional.ofNullable(repositoryStorageObject.findStorageObjectByMacAddress(macAddress));
+        return Optional.ofNullable(storageObjectRepository.findStorageObjectByMacAddress(macAddress));
     }
 
     public StorageObject findStorageObjectMac(Optional<String> mac){
 
-        return repositoryStorageObject.findByMacAddressContaining(mac);
+        return storageObjectRepository.findByMacAddressContaining(mac);
     }
 
     public void createStorageObject(String randomKey,
@@ -74,7 +74,7 @@ public class ServiceStorageObject{
                                                                              .connectionNo(storedAtCu.isEmpty() ? "No Customer" : storedAtCu)
                                                                              .build())
                                                    .build();
-        repositoryStorageObject.save(storageObject);
+        storageObjectRepository.save(storageObject);
     }
 
 
@@ -87,12 +87,12 @@ public class ServiceStorageObject{
         if(one.isPresent()){
             repositoryStorageObject.deleteById(one.get().getId());
         }*/
-        repositoryStorageObject.deleteStorageObjectByApiKeyID(key);
+        storageObjectRepository.deleteStorageObjectByApiKeyID(key);
     }
 
     @Transactional(readOnly = true)
     public Optional<StorageObject> getStorageObjectByKey(String key){
-        return repositoryStorageObject.findStorageObjectByApiKeyID(key);
+        return storageObjectRepository.findStorageObjectByApiKeyID(key);
     }
 
     public StorageObject updateStorageObject(String apiKey,
@@ -102,7 +102,7 @@ public class ServiceStorageObject{
                                     String remark,
                                     String projectDev,
                                     String storedAtCu){
-      return  repositoryStorageObject.findStorageObjectByApiKeyID(apiKey)
+      return  storageObjectRepository.findStorageObjectByApiKeyID(apiKey)
                                .map(sto -> {
                                    sto.setApiKeyID(apiKey);
                                    sto.setStoredStorage(Storage.builder()
@@ -132,7 +132,7 @@ public class ServiceStorageObject{
 
     public Stream<StorageObject> searchFind(String search){
         search = ConstantsDomain.P+search.toString()+ConstantsDomain.P;
-        List<StorageObject> storageObjects = repositoryStorageObject.searchStoo(search.toString());
+        List<StorageObject> storageObjects = storageObjectRepository.searchStoo(search.toString());
         return storageObjects.stream();
     }
 }

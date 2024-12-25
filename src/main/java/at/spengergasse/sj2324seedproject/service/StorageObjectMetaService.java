@@ -3,14 +3,12 @@ package at.spengergasse.sj2324seedproject.service;
 import at.spengergasse.sj2324seedproject.domain.SfpType;
 import at.spengergasse.sj2324seedproject.domain.StorageObjectMeta;
 import at.spengergasse.sj2324seedproject.domain.Type;
-import at.spengergasse.sj2324seedproject.persistence.RepositoryStorageObjectMeta;
+import at.spengergasse.sj2324seedproject.persistence.StorageObjectMetaRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,18 +16,18 @@ import java.util.Optional;
 @Transactional
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ServiceStorageObjectMeta{
+public class StorageObjectMetaService {
 
-    private RepositoryStorageObjectMeta repositoryStorageObjectMeta;
+    private StorageObjectMetaRepository storageObjectMetaRepository;
 
 
     public StorageObjectMeta saveStorageMeta(StorageObjectMeta storageObjectMeta){
 
-        return repositoryStorageObjectMeta.save(storageObjectMeta);
+        return storageObjectMetaRepository.save(storageObjectMeta);
     }
 
     public List<StorageObjectMeta> fetchStoMeta(Optional<String> nameParam){
-        List<StorageObjectMeta> storageObjectMetas = repositoryStorageObjectMeta.findAll();
+        List<StorageObjectMeta> storageObjectMetas = storageObjectMetaRepository.findAll();
 
         return nameParam.map(param -> storageObjectMetas.stream()
             .filter(stoMeta ->
@@ -38,7 +36,7 @@ public class ServiceStorageObjectMeta{
     }
 
     public StorageObjectMeta findStorageObjectMeta(String name){
-        return repositoryStorageObjectMeta.findByNameContainsIgnoreCase(name);
+        return storageObjectMetaRepository.findByNameContainsIgnoreCase(name);
     }
 
     @Transactional
@@ -60,6 +58,6 @@ public class ServiceStorageObjectMeta{
                                                                .interfacespeed(interfaceSpeed)
                                                                .build();
 
-        return repositoryStorageObjectMeta.save(storageObjectMeta);
+        return storageObjectMetaRepository.save(storageObjectMeta);
     }
 }

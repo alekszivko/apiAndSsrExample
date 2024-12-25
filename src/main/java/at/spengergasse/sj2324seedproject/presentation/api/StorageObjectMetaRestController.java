@@ -3,20 +3,14 @@ package at.spengergasse.sj2324seedproject.presentation.api;
 import at.spengergasse.sj2324seedproject.constants.ConstantsDomain;
 import at.spengergasse.sj2324seedproject.domain.StorageObjectMeta;
 import at.spengergasse.sj2324seedproject.exceptions.StorageObjectMetaAlreadyExistsException;
-import at.spengergasse.sj2324seedproject.presentation.api.commands.CommandStorageObjectMeta;
-import at.spengergasse.sj2324seedproject.presentation.api.dtos.StorageObjectDTO;
+import at.spengergasse.sj2324seedproject.presentation.api.commands.StorageObjectMetaCommand;
 import at.spengergasse.sj2324seedproject.presentation.api.dtos.StorageObjectMetaDTO;
-import at.spengergasse.sj2324seedproject.service.ServiceStorageObjectMeta;
+import at.spengergasse.sj2324seedproject.service.StorageObjectMetaService;
 import jakarta.validation.Valid;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.SSLEngineResult;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +18,9 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(ConstantsDomain.URL_BASE_STO_META)
-public class RestControllerStorageObjectMeta{
+public class StorageObjectMetaRestController {
 
-    private final ServiceStorageObjectMeta serviceStorageObjectMeta;
+    private final StorageObjectMetaService storageObjectMetaService;
 
 
         @GetMapping
@@ -34,7 +28,7 @@ public class RestControllerStorageObjectMeta{
                 @RequestParam
                 Optional<String> nameParam){
 
-            return ResponseEntity.ok(serviceStorageObjectMeta
+            return ResponseEntity.ok(storageObjectMetaService
                 .fetchStoMeta(nameParam).stream()
                 .map(StorageObjectMetaDTO::new)
                 .toList());
@@ -46,7 +40,7 @@ public class RestControllerStorageObjectMeta{
             throw new NullPointerException("Given String is null!!!");
         }
 
-        StorageObjectMeta storageObjectMeta = serviceStorageObjectMeta.findStorageObjectMeta(name);
+        StorageObjectMeta storageObjectMeta = storageObjectMetaService.findStorageObjectMeta(name);
 
         if(storageObjectMeta == null){
           return ResponseEntity.noContent().build();
@@ -64,8 +58,8 @@ public class RestControllerStorageObjectMeta{
     @PostMapping
     public ResponseEntity<StorageObjectMetaDTO> createStoMeta(
             @RequestBody
-            @Valid CommandStorageObjectMeta cmdMeta){
-        StorageObjectMeta storageMeta = serviceStorageObjectMeta.saveStorageMeta(cmdMeta.type(),
+            @Valid StorageObjectMetaCommand cmdMeta){
+        StorageObjectMeta storageMeta = storageObjectMetaService.saveStorageMeta(cmdMeta.type(),
                                                                                  cmdMeta.name(),
                                                                                  cmdMeta.osVersion(),
                                                                                  cmdMeta.consumablesPerBox(),

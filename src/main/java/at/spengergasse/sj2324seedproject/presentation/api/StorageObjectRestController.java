@@ -2,7 +2,7 @@ package at.spengergasse.sj2324seedproject.presentation.api;
 
 import at.spengergasse.sj2324seedproject.domain.StorageObject;
 import at.spengergasse.sj2324seedproject.presentation.api.dtos.StorageObjectDTO;
-import at.spengergasse.sj2324seedproject.service.ServiceStorageObject;
+import at.spengergasse.sj2324seedproject.service.StorageObjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -21,13 +21,13 @@ import static at.spengergasse.sj2324seedproject.constants.ConstantsDomain.URI_BA
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(URI_BASE_STORAGEOBJECT)
-public class RestControllerStorageObject{
+public class StorageObjectRestController {
 
     //    @Autowired
     //    private final RepositoryStorageObject repositoryStorageObject;
 
     @Autowired
-    private final ServiceStorageObject serviceStorageObject;
+    private final StorageObjectService serviceStorageObject;
 
     @GetMapping
     public HttpEntity<List<StorageObjectDTO>> fetchStorageObjects(){

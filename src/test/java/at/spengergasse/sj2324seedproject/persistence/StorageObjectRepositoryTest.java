@@ -5,18 +5,16 @@ import at.spengergasse.sj2324seedproject.fixture.FixtureFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-public class RepositoryStorageObjectTest{
+public class StorageObjectRepositoryTest {
 
     @Autowired
-    private RepositoryStorageObject repository;
+    private StorageObjectRepository repository;
 
     @Test
     void ensure_save_storageOBject_into_DB(){
