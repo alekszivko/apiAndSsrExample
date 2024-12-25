@@ -185,7 +185,7 @@
       <artifactId>spring-boot-devtools</artifactId>
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
-      <version>3.1.5</version>
+      <version>3.4.1</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-hateoas</artifactId>
