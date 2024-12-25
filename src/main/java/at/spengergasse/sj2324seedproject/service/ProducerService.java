@@ -1,13 +1,12 @@
 package at.spengergasse.sj2324seedproject.service;
 
 import at.spengergasse.sj2324seedproject.domain.Producer;
-import at.spengergasse.sj2324seedproject.exceptions.ExceptionProducer;
+import at.spengergasse.sj2324seedproject.exceptions.ProducerException;
 import at.spengergasse.sj2324seedproject.foundation.Guard;
-import at.spengergasse.sj2324seedproject.persistence.RepositoryProducer;
+import at.spengergasse.sj2324seedproject.persistence.ProducerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,31 +15,27 @@ import java.util.*;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ServiceProducer{
+public class ProducerService {
 
     @Autowired
-    private final RepositoryProducer repositoryProducer;
+    private final ProducerRepository producerRepository;
 
 
     public List<Producer> fetchProducer(Optional<String> nameParam){
         List<Producer> prod2 = new ArrayList<>();
 
         if(nameParam.isPresent()){
-            //            List<Producer> prod = new ArrayList<>();
-            //            Producer           oneProd      = persistenceProducer.findOneProducerByName(nameParam);
 
-            List<Producer>     producerList = repositoryProducer.findAll();
+            List<Producer>     producerList = producerRepository.findAll();
             Iterator<Producer> iter         = producerList.iterator();
 
-            //1. Um Example zu nutzen muss zuerst ein "Probe" erstellt werden!
             Producer probe = Producer.builder().name(nameParam.get()).build();
 
-            //2. Example<Producer> mit dem "Probe" erstellen.
             Example<Producer> proTemp = Example.of(probe);
 
 
 
-            repositoryProducer.exists(proTemp);
+            producerRepository.exists(proTemp);
             while(iter.hasNext()){
                 Producer temp = iter.next();
                 String toUpperCase1 = temp.getName()
@@ -53,16 +48,16 @@ public class ServiceProducer{
             }
 
             if(nameParam.isPresent() && prod2.isEmpty()){
-                return repositoryProducer.findAll();
+                return producerRepository.findAll();
             }
         }else{
-            return repositoryProducer.findAll();
+            return producerRepository.findAll();
         }
         return prod2;
     }
 
     public List<Producer> fetchProducerName(Optional<String> namePart){
-        return repositoryProducer.findProducerByName(namePart);
+        return producerRepository.findProducerByName(namePart);
     }
 
     public Producer saveProducer(String shortName,
@@ -72,29 +67,29 @@ public class ServiceProducer{
                                     .name(name)
                                     .build();
 
-        return repositoryProducer.save(producer);
+        return producerRepository.save(producer);
 
     }
 
-    public void deleteProducer(String shortName) throws ExceptionProducer{
+    public void deleteProducer(String shortName) throws ProducerException {
         if(shortName != null){
-            repositoryProducer.deleteProducerByShortname(shortName);
+            producerRepository.deleteProducerByShortname(shortName);
         }else{
-            throw new ExceptionProducer("ShortName is null");
+            throw new ProducerException("ShortName is null");
         }
     }
 
-    public Producer deleteProducerB(String shortName) throws ExceptionProducer{
+    public Producer deleteProducerB(String shortName) throws ProducerException {
         if(shortName != null){
-            return repositoryProducer.deleteProducerByShortname(shortName);
+            return producerRepository.deleteProducerByShortname(shortName);
         }else{
-            throw new ExceptionProducer("ShortName is null");
+            throw new ProducerException("ShortName is null");
         }
     }
 
     public Producer findProducerByID(Long id){
         if(Guard.isPositive(id)){
-            return repositoryProducer.findProducerById(id);
+            return producerRepository.findProducerById(id);
         }else{
             throw new NoSuchElementException("Producer id is negativ; therefore, no value is available!");
         }

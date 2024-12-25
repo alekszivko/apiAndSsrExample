@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RepositoryProducer
+public interface ProducerRepository
         extends JpaRepository<Producer, Long>{
     List<Producer> findProducerByName(Optional<String> namePart);
 

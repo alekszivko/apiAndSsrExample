@@ -16,13 +16,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(StorageController.class)
 class StorageControllerTest {
 
   private @Autowired MockMvc mockMvc;
-  private @MockBean StorageService storageService;
+  private @MockitoBean StorageService storageService;
 
   @Test
   void ensureGetStorageReturnsProperView() throws Exception {

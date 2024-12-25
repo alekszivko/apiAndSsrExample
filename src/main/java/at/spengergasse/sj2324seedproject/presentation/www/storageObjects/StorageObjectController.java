@@ -2,11 +2,9 @@ package at.spengergasse.sj2324seedproject.presentation.www.storageObjects;
 
 import at.spengergasse.sj2324seedproject.constants.ConstantsDomain;
 import at.spengergasse.sj2324seedproject.domain.StorageObject;
-import at.spengergasse.sj2324seedproject.foundation.ApiKeyGenerator;
-import at.spengergasse.sj2324seedproject.service.ServiceStorageObject;
+import at.spengergasse.sj2324seedproject.service.StorageObjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,9 +16,9 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(ConstantsDomain.TEMPLATE_STOO_BASE)
-public class ControllerStorageObject implements RedirectForwardSupport{
+public class StorageObjectController implements RedirectForwardSupport{
 
-    private final ServiceStorageObject serviceStorageObject;
+    private final StorageObjectService serviceStorageObject;
 
     @GetMapping
     public String getStorageObject(Model model){

@@ -1,21 +1,14 @@
 package at.spengergasse.sj2324seedproject.service;
 
-import at.spengergasse.sj2324seedproject.constants.ConstantsDomain;
 import at.spengergasse.sj2324seedproject.domain.StorageObjectMeta;
 import at.spengergasse.sj2324seedproject.fixture.FixtureFactory;
-import at.spengergasse.sj2324seedproject.persistence.RepositoryStorageObjectMeta;
-import jakarta.persistence.Entity;
+import at.spengergasse.sj2324seedproject.persistence.StorageObjectMetaRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -27,28 +20,27 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceStorageObjectMetaTest{
+class StorageObjectMetaServiceTest {
 
-    private ServiceStorageObjectMeta serviceStorageObjectMeta;
-    private @Mock RepositoryStorageObjectMeta repositoryStorageObjectMeta;
+    private StorageObjectMetaService storageObjectMetaService;
+    private @Mock StorageObjectMetaRepository storageObjectMetaRepository;
 
     @BeforeEach
     void setup(){
-        assumeThat(repositoryStorageObjectMeta).isNotNull();
-        this.serviceStorageObjectMeta = new ServiceStorageObjectMeta(repositoryStorageObjectMeta);
+        assumeThat(storageObjectMetaRepository).isNotNull();
+        this.storageObjectMetaService = new StorageObjectMetaService(storageObjectMetaRepository);
     }
 
     @Test
     void ensureFetchStoMetaWorks() {
         var storageObjectMeta = FixtureFactory.storageObjectMetaFixture();
-        when(repositoryStorageObjectMeta.findAll()).thenReturn(List.of(storageObjectMeta));
+        when(storageObjectMetaRepository.findAll()).thenReturn(List.of(storageObjectMeta));
 
-        var result = serviceStorageObjectMeta.fetchStoMeta(Optional.empty());
+        var result = storageObjectMetaService.fetchStoMeta(Optional.empty());
 
-        verify(repositoryStorageObjectMeta, times(1)).findAll();
+        verify(storageObjectMetaRepository, times(1)).findAll();
     }
 
     @Test
@@ -58,12 +50,12 @@ class ServiceStorageObjectMetaTest{
 
         Optional<String> nameParam = Optional.empty();
 
-        when(repositoryStorageObjectMeta.findAll()).thenReturn(List.of(storageObjectMeta));
+        when(storageObjectMetaRepository.findAll()).thenReturn(List.of(storageObjectMeta));
         //when
-        var result = serviceStorageObjectMeta.fetchStoMeta(nameParam);
+        var result = storageObjectMetaService.fetchStoMeta(nameParam);
         //expect
 
-        verify(repositoryStorageObjectMeta, times(1)).findAll();
+        verify(storageObjectMetaRepository, times(1)).findAll();
     }
 
     @Test
@@ -73,10 +65,10 @@ class ServiceStorageObjectMetaTest{
        equalStorageObjectMeta.setName(nameParam.get());
        StorageObjectMeta unequalStorageObjectMeta = FixtureFactory.storageObjectMetaFixture();
 
-       when(repositoryStorageObjectMeta.findAll())
+       when(storageObjectMetaRepository.findAll())
            .thenReturn(List.of(equalStorageObjectMeta, unequalStorageObjectMeta));
 
-       var result = serviceStorageObjectMeta.fetchStoMeta(nameParam);
+       var result = storageObjectMetaService.fetchStoMeta(nameParam);
 
        assertThat(result).doesNotContain(unequalStorageObjectMeta);
        assertThat(result).contains(equalStorageObjectMeta);

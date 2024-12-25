@@ -2,10 +2,10 @@ package at.spengergasse.sj2324seedproject.presentation.api;
 
 import at.spengergasse.sj2324seedproject.constants.ConstantsDomain;
 import at.spengergasse.sj2324seedproject.domain.Producer;
-import at.spengergasse.sj2324seedproject.exceptions.ExceptionProducer;
-import at.spengergasse.sj2324seedproject.presentation.api.commands.CommandProducer;
+import at.spengergasse.sj2324seedproject.exceptions.ProducerException;
+import at.spengergasse.sj2324seedproject.presentation.api.commands.ProducerCommand;
 import at.spengergasse.sj2324seedproject.presentation.api.dtos.ProducerDTO;
-import at.spengergasse.sj2324seedproject.service.ServiceProducer;
+import at.spengergasse.sj2324seedproject.service.ProducerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +25,10 @@ import java.util.Optional;
 @RequestMapping(ConstantsDomain.URL_BASE_PRODUCER)
 @Log4j2
 @ComponentScan(basePackages = {"at.spengergasse.sj2324seedproject.persistence"})
-public class RestControllerProducer{
+public class ProducerRestController {
 
     @Autowired
-    private final ServiceProducer serviceProducer;
+    private final ProducerService producerService;
 
     @GetMapping()
     public List<ProducerDTO> fetchProducers(
@@ -37,7 +37,7 @@ public class RestControllerProducer{
         List<ProducerDTO> result = new ArrayList<>();
         log.debug("fetchProducers called with nameParam={}",
                   nameParam);
-        List<Producer> persProducer = serviceProducer.fetchProducer(nameParam);
+        List<Producer> persProducer = producerService.fetchProducer(nameParam);
         for(Producer pro: persProducer){
             ProducerDTO producerDTO = new ProducerDTO(pro);
             result.add(producerDTO);
@@ -55,7 +55,7 @@ public class RestControllerProducer{
     public ResponseEntity<ProducerDTO> getProducerById(String idVal){
         //        if(/*idVal != null && */Character.isDigit(Integer.parseInt(idVal))){
         Long     tempId       = Long.parseLong(idVal);
-        Producer producerByID = serviceProducer.findProducerByID(tempId);
+        Producer producerByID = producerService.findProducerByID(tempId);
         //            if(producerByID != null ){
         return ResponseEntity.ok(new ProducerDTO(producerByID));
         //            return ResponseEntity.ok(new ProducerDTO(producerByID));
@@ -90,7 +90,7 @@ public class RestControllerProducer{
         if(id.contains("01234567890")){
             tempID = Long.parseLong(id);
         }
-        Producer producerByID = serviceProducer.findProducerByID(tempID);
+        Producer producerByID = producerService.findProducerByID(tempID);
         URI      location     = URI.create(ConstantsDomain.URL_BASE_PRODUCER+ConstantsDomain.URI_ID);
 
         HttpHeaders responseHeader = new HttpHeaders();
@@ -127,10 +127,10 @@ public class RestControllerProducer{
     @PostMapping
     public ResponseEntity<ProducerDTO> createProducer(
             @RequestBody
-            CommandProducer command){
+            ProducerCommand command){
         log.debug("createProducer called with {}",
                   command);
-        var producer = serviceProducer.saveProducer(command.shortname(),
+        var producer = producerService.saveProducer(command.shortname(),
                                                     command.name());
 
         URI uri = URI.create(ConstantsDomain.URL_BASE_PRODUCER+producer.getId());
@@ -145,11 +145,11 @@ public class RestControllerProducer{
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<ProducerDTO> delete(
             @PathVariable
-            String delShortname) throws ExceptionProducer{
+            String delShortname) throws ProducerException {
         log.debug("delete called with shortName= {}",
                   delShortname);
 
-        var producer = serviceProducer.deleteProducerB(delShortname);
+        var producer = producerService.deleteProducerB(delShortname);
         ResponseEntity<ProducerDTO> prod = ResponseEntity.ok()
                                                          .body(new ProducerDTO(producer));
         return prod;

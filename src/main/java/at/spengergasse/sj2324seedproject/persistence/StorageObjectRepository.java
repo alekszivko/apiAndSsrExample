@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RepositoryStorageObject extends JpaRepository<StorageObject, Long>{
+public interface StorageObjectRepository extends JpaRepository<StorageObject, Long>{
     StorageObject findAllByMacAddress(String mac);
 
     StorageObject findStorageObjectByMacAddress(Optional<String> mac);
