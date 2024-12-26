@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 
-public interface RepositoryStorageObjectMeta extends JpaRepository<StorageObjectMeta, Long>{
+public interface StorageObjectMetaRepository extends JpaRepository<StorageObjectMeta, Long>{
 
     StorageObjectMeta findByNameContainsIgnoreCase(String name);
 }

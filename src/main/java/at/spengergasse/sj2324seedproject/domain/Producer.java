@@ -1,6 +1,5 @@
 package at.spengergasse.sj2324seedproject.domain;
 
-import at.spengergasse.sj2324seedproject.constants.ConstantsDomain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,15 +22,17 @@ import java.util.List;
 @Table(name = "producers")
 public class Producer extends AbstractPersistable<Long>{
 
+    private static final int DEFAULT_LENGTH = 55;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<StorageObjectMeta> storageObjectMeta;
 
-    @Column(name = "shortname", length = ConstantsDomain.DEFAULT_LENGTH)
+    @Column(name = "shortname", length = DEFAULT_LENGTH)
     @NotBlank
     private String shortname;
 
     @NotBlank
-    @Column(name = "producer_name", length =  ConstantsDomain.DEFAULT_LENGTH)
+    @Column(name = "producer_name", length =  DEFAULT_LENGTH)
     private String name;
 
 

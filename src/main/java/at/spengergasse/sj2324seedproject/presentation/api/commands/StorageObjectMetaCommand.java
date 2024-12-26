@@ -1,6 +1,6 @@
 package at.spengergasse.sj2324seedproject.presentation.api.commands;
 
-public record CommandStorageObjectMeta(String type,
+public record StorageObjectMetaCommand(String type,
                                        String name,
                                        String osVersion,
                                        String consumablesPerBox,
