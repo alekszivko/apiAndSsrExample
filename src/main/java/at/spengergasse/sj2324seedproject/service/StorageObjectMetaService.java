@@ -4,7 +4,6 @@ import at.spengergasse.sj2324seedproject.domain.SfpType;
 import at.spengergasse.sj2324seedproject.domain.StorageObjectMeta;
 import at.spengergasse.sj2324seedproject.domain.Type;
 import at.spengergasse.sj2324seedproject.persistence.StorageObjectMetaRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +13,10 @@ import java.util.Optional;
 
 @Service
 @Transactional
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class StorageObjectMetaService {
 
-    private StorageObjectMetaRepository storageObjectMetaRepository;
+    private final StorageObjectMetaRepository storageObjectMetaRepository;
 
 
     public StorageObjectMeta saveStorageMeta(StorageObjectMeta storageObjectMeta){
@@ -31,7 +29,7 @@ public class StorageObjectMetaService {
 
         return nameParam.map(param -> storageObjectMetas.stream()
             .filter(stoMeta ->
-                stoMeta.getName().equalsIgnoreCase(nameParam.get())).toList())
+                stoMeta.getName().equalsIgnoreCase(param)).toList())
             .orElseGet(() -> storageObjectMetas);
     }
 
