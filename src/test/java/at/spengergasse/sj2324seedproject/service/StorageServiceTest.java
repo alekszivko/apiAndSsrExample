@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-//Es werden keine Container benötigt, es wird mit Mock Objekten gearbeitet. --> schnell
+// No containers needed, working with mock objects. --> fast
 @ExtendWith(MockitoExtension.class)
 class StorageServiceTest {
 
