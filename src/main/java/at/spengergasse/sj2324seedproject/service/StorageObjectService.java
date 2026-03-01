@@ -50,11 +50,8 @@ public class StorageObjectService {
       String remark,
       String project,
       String storedAtCu) {
-    apiKeyGenerator.getRandomKey(16);
-    System.out.println(randomKey
-        + " ###############################################################################################");
     StorageObject storageObject = StorageObject.builder()
-        .apiKeyID(randomKey = apiKeyGenerator.getRandomKey(16))
+        .apiKeyID(apiKeyGenerator.getRandomKey(16))
         .storedStorage(storage.isEmpty() ? Storage.builder()
             .name("Empty")
             .build() : Storage.builder()
@@ -63,7 +60,7 @@ public class StorageObjectService {
         .serialNumber(serial.isEmpty() ? "Empty" : serial)
         .macAddress(mac.isEmpty() ? "Empty" : mac)
         .remark(mac.isEmpty() ? "Empty" : remark)
-        .projectDevice(!project.isEmpty() ? true : false)
+        .projectDevice(!project.isEmpty())
         .storedAtCustomer(Customer.builder()
             .connectionNo(storedAtCu.isEmpty() ? "No Customer" : storedAtCu)
             .build())
@@ -73,14 +70,6 @@ public class StorageObjectService {
 
 
   public void delete(String key) {
-       /* Example<StorageObject> stooExamp = Example.of(StorageObject.builder()
-                                                                   .apiKeyID(key)
-                                                                   .build());
-        Optional<StorageObject> one = repositoryStorageObject.findOne(stooExamp);
-
-        if(one.isPresent()){
-            repositoryStorageObject.deleteById(one.get().getId());
-        }*/
     storageObjectRepository.deleteStorageObjectByApiKeyID(key);
   }
 
@@ -110,24 +99,9 @@ public class StorageObjectService {
           return sto;
         }).orElseThrow(() -> new IllegalArgumentException(
             "StorageObject with key %s doesnt exist in DB".formatted(apiKey)));
-/*        repositoryStorageObject.save(StorageObject.builder()
-                                                  .apiKeyID(apiKey)
-                                                  .storedStorage(Storage.builder()
-                                                                        .name(storage)
-                                                                        .build())
-                                                  .serialNumber(serialNr)
-                                                  .macAddress(mac)
-                                                  .remark(remark)
-                                                  .projectDevice(!projectDev.isEmpty())
-                                                  .storedAtCustomer(Customer.builder()
-                                                                            .connectionNo(storedAtCu.isEmpty() ? "No Customer" : storedAtCu)
-                                                                            .build())
-                                                  .build());*/
   }
 
   public Stream<StorageObject> searchFind(String search) {
-    search = "%% %s %%".formatted(search);
-    List<StorageObject> storageObjects = storageObjectRepository.searchStoo(search);
-    return storageObjects.stream();
+    return storageObjectRepository.searchStoo("%% %s %%".formatted(search)).stream();
   }
 }

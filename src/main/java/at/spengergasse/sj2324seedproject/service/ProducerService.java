@@ -5,55 +5,29 @@ import at.spengergasse.sj2324seedproject.exceptions.ProducerException;
 import at.spengergasse.sj2324seedproject.foundation.Guard;
 import at.spengergasse.sj2324seedproject.persistence.ProducerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ProducerService {
 
-    @Autowired
     private final ProducerRepository producerRepository;
 
 
     public List<Producer> fetchProducer(Optional<String> nameParam){
-        List<Producer> prod2 = new ArrayList<>();
-
-        if(nameParam.isPresent()){
-
-            List<Producer>     producerList = producerRepository.findAll();
-            Iterator<Producer> iter         = producerList.iterator();
-
-            Producer probe = Producer.builder().name(nameParam.get()).build();
-
-            Example<Producer> proTemp = Example.of(probe);
-
-
-
-            producerRepository.exists(proTemp);
-            while(iter.hasNext()){
-                Producer temp = iter.next();
-                String toUpperCase1 = temp.getName()
-                                          .toUpperCase();
-                String toUpperCase2 = nameParam.get()
-                                               .toUpperCase();
-                if(toUpperCase1.contains(toUpperCase2)){
-                    prod2.add(temp);
-                }
-            }
-
-            if(nameParam.isPresent() && prod2.isEmpty()){
-                return producerRepository.findAll();
-            }
-        }else{
-            return producerRepository.findAll();
-        }
-        return prod2;
+        return nameParam.map(name -> {
+            List<Producer> all = producerRepository.findAll();
+            List<Producer> filtered = all.stream()
+                .filter(p -> p.getName().toUpperCase().contains(name.toUpperCase()))
+                .toList();
+            return filtered.isEmpty() ? all : filtered;
+        }).orElseGet(producerRepository::findAll);
     }
 
     public List<Producer> fetchProducerName(Optional<String> namePart){
@@ -94,8 +68,4 @@ public class ProducerService {
             throw new NoSuchElementException("Producer id is negativ; therefore, no value is available!");
         }
     }
-
-//    public Producer findProducerByStringID(String id){
-//        return repositoryProducer.findProducerById(Long.valueOf(id));
-//    }
 }
