@@ -61,9 +61,9 @@ public class FixtureFactory {
   }
 
   public static List<Producer> give_me_a_List_of_producer() {
-    List<Producer> producersListe = new ArrayList<>();
-    producersListe.add(producerFixture());
-    return producersListe;
+    List<Producer> producersList = new ArrayList<>();
+    producersList.add(producerFixture());
+    return producersList;
   }
 
   /// ////////////////////////////////// StorageObject
