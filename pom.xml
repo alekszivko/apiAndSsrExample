@@ -164,7 +164,7 @@
       <artifactId>postgresql</artifactId>
       <groupId>org.postgresql</groupId>
       <scope>runtime</scope>
-      <version>42.7.4</version>
+      <version>42.7.5</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-testcontainers</artifactId>
