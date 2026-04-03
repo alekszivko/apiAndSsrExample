@@ -20,7 +20,7 @@ public record StorageObjectMetaDTO(String name,
              storageObjectMeta.getConsumablesPerBox(),
              storageObjectMeta.getWavelength(),
              storageObjectMeta.getInterfacespeed(),
-             new ProducerDTO(storageObjectMeta.getProducer()));
+             storageObjectMeta.getProducer() != null ? new ProducerDTO(storageObjectMeta.getProducer()) : null);
     }
 
 

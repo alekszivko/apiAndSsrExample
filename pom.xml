@@ -66,6 +66,13 @@
       <artifactId>quarkus-jdbc-postgresql</artifactId>
     </dependency>
 
+    <!-- H2 in-memory database for tests -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jdbc-h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Quarkus REST Client with Jackson -->
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -113,6 +120,12 @@
       <artifactId>quarkus-panache-mock</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.25.3</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -158,10 +171,12 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
+            <api.version>1.44</api.version>
           </systemPropertyVariables>
           <environmentVariables>
             <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
             <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
+            <API_VERSION>1.44</API_VERSION>
             <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
           </environmentVariables>
         </configuration>
@@ -187,6 +202,7 @@
           <environmentVariables>
             <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
             <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
+            <API_VERSION>1.44</API_VERSION>
             <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
           </environmentVariables>
         </configuration>

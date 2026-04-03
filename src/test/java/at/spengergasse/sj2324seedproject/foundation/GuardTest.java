@@ -6,7 +6,7 @@ import static at.spengergasse.sj2324seedproject.foundation.Guard.ensureNotNull;
 import static at.spengergasse.sj2324seedproject.foundation.Guard.isNotNull;
 import static at.spengergasse.sj2324seedproject.foundation.Guard.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
