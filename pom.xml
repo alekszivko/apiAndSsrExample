@@ -11,7 +11,7 @@
   <properties>
     <sonar.organization>alekszivko</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <java.version>22</java.version>
+    <java.version>21</java.version>
     <querydsl.version>5.1.0</querydsl.version>
   </properties>
   <version>0.0.1-SNAPSHOT</version>
@@ -100,8 +100,32 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <compilerArgs>--enable-preview</compilerArgs>
-          <source>22</source>
-          <target>22</target>
+          <source>21</source>
+          <target>21</target>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>--enable-preview -Dtestcontainers.dockerclient.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy -DDOCKER_HOST=unix:///var/run/docker.sock</argLine>
+          <environmentVariables>
+            <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
+            <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
+            <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+          </environmentVariables>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <argLine>--enable-preview -Dtestcontainers.dockerclient.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy -DDOCKER_HOST=unix:///var/run/docker.sock</argLine>
+          <environmentVariables>
+            <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
+            <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
+            <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+          </environmentVariables>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
       </plugin>
