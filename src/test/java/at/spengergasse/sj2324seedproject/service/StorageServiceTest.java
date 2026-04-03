@@ -35,14 +35,14 @@ class StorageServiceTest {
         //given
         Optional<String> searchCriteria = Optional.empty();
         var storage = FixtureFactory.storageFixture();
-        when(storageRepository.findAll()).thenReturn(List.of(storage));
+        when(storageRepository.listAll()).thenReturn(List.of(storage));
 
         //when
         var result = storageService.fetchStorage(searchCriteria);
 
         //then
         assumeThat(result).containsExactly(storage);
-        verify(storageRepository).findAll();
+        verify(storageRepository).listAll();
         verifyNoMoreInteractions(storageRepository);
 
     }

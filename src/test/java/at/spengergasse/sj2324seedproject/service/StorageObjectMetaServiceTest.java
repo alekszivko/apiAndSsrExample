@@ -34,7 +34,7 @@ class StorageObjectMetaServiceTest {
     @Test
     void ensureFetchStoMetaWorks() {
         var storageObjectMeta = FixtureFactory.storageObjectMetaFixture();
-        when(storageObjectMetaRepository.findAll()).thenReturn(List.of(storageObjectMeta));
+        when(storageObjectMetaRepository.listAll()).thenReturn(List.of(storageObjectMeta));
 
         var result = storageObjectMetaService.fetchStoMeta(Optional.empty());
 
@@ -48,7 +48,7 @@ class StorageObjectMetaServiceTest {
 
         Optional<String> nameParam = Optional.empty();
 
-        when(storageObjectMetaRepository.findAll()).thenReturn(List.of(storageObjectMeta));
+        when(storageObjectMetaRepository.listAll()).thenReturn(List.of(storageObjectMeta));
         //when
         var result = storageObjectMetaService.fetchStoMeta(nameParam);
         //expect
@@ -63,7 +63,7 @@ class StorageObjectMetaServiceTest {
        equalStorageObjectMeta.setName(nameParam.get());
        StorageObjectMeta unequalStorageObjectMeta = FixtureFactory.storageObjectMetaFixture();
 
-       when(storageObjectMetaRepository.findAll())
+       when(storageObjectMetaRepository.listAll())
            .thenReturn(List.of(equalStorageObjectMeta, unequalStorageObjectMeta));
 
        var result = storageObjectMetaService.fetchStoMeta(nameParam);
