@@ -1,16 +1,14 @@
 package at.spengergasse.sj2324seedproject.persistence;
 
 import at.spengergasse.sj2324seedproject.domain.Storage;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 
-@Repository
-public interface StorageRepository extends JpaRepository<Storage, Long> {
-    List<Storage> findAllByNameContainingIgnoreCase(String name);
+@ApplicationScoped
+public class StorageRepository implements PanacheRepository<Storage> {
 
-
-
-
+    public List<Storage> findAllByNameContainingIgnoreCase(String name) {
+        return list("LOWER(name) LIKE LOWER(?1)", "%" + name + "%");
+    }
 }

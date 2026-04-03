@@ -2,224 +2,195 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <description>Simple spring boot project that has a rest api and some serverside
-    rendered templates</description>
+  <description>Simple Quarkus project that has a rest api and some serverside rendered templates</description>
   <groupId>dev.azivkovic</groupId>
   <artifactId>apiAndSsrExample</artifactId>
   <modelVersion>4.0.0</modelVersion>
   <name>apiAndSsrExample</name>
-  <properties>
-    <sonar.organization>alekszivko</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <java.version>21</java.version>
-    <querydsl.version>5.1.0</querydsl.version>
-  </properties>
   <version>0.0.1-SNAPSHOT</version>
+
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+    <quarkus.platform.version>3.15.1</quarkus.platform.version>
+    <compiler-plugin.version>3.13.0</compiler-plugin.version>
+    <surefire-plugin.version>3.3.1</surefire-plugin.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${quarkus.platform.group-id}</groupId>
+        <artifactId>${quarkus.platform.artifact-id}</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- REST with Jackson JSON -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-jackson</artifactId>
+    </dependency>
+
+    <!-- Qute templating engine -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-qute</artifactId>
+    </dependency>
+
+    <!-- Hibernate ORM with Panache -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-hibernate-orm-panache</artifactId>
+    </dependency>
+
+    <!-- Hibernate Validator -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-hibernate-validator</artifactId>
+    </dependency>
+
+    <!-- PostgreSQL JDBC driver -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jdbc-postgresql</artifactId>
+    </dependency>
+
+    <!-- Quarkus REST Client with Jackson -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-client-jackson</artifactId>
+    </dependency>
+
+    <!-- SmallRye OpenAPI (Swagger UI) -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
+    </dependency>
+
+    <!-- SmallRye Health (actuator equivalent) -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.36</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-junit5-mockito</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-panache-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <finalName>apiAndSsrExample</finalName>
     <plugins>
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.12</version>
+        <groupId>${quarkus.platform.group-id}</groupId>
+        <artifactId>quarkus-maven-plugin</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <extensions>true</extensions>
         <executions>
           <execution>
             <goals>
-              <goal>prepare-agent</goal>
+              <goal>build</goal>
+              <goal>generate-code</goal>
+              <goal>generate-code-tests</goal>
             </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>jacoco-check</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <rule>
-                  <element>PACKAGE</element>
-                  <limits>
-                    <limit>
-                      <counter>LINE</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.0</minimum> <!-- bump up in the future overtime to 0.70-->
-                    </limit>
-                  </limits>
-                </rule>
-              </rules>
-            </configuration>
           </execution>
         </executions>
       </plugin>
       <plugin>
-        <artifactId>springdoc-openapi-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <phase>integration-test</phase>
-          </execution>
-        </executions>
-        <groupId>org.springdoc</groupId>
-        <version>1.4</version>
-      </plugin>
-      <plugin>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <artifactId>lombok</artifactId>
-              <groupId>org.projectlombok</groupId>
-            </exclude>
-          </excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <id>pre-integration-test</id>
-          </execution>
-          <execution>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-            <id>post-integration-test</id>
-          </execution>
-        </executions>
-        <groupId>org.springframework.boot</groupId>
-      </plugin>
-      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${compiler-plugin.version}</version>
         <configuration>
-          <compilerArgs>--enable-preview</compilerArgs>
-          <source>21</source>
-          <target>21</target>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.36</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
-        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
         <configuration>
-          <argLine>--enable-preview -Dtestcontainers.dockerclient.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy -DDOCKER_HOST=unix:///var/run/docker.sock</argLine>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            <maven.home>${maven.home}</maven.home>
+          </systemPropertyVariables>
           <environmentVariables>
             <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
             <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
             <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
           </environmentVariables>
         </configuration>
-        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
-          <argLine>--enable-preview -Dtestcontainers.dockerclient.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy -DDOCKER_HOST=unix:///var/run/docker.sock</argLine>
+          <systemPropertyVariables>
+            <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            <maven.home>${maven.home}</maven.home>
+          </systemPropertyVariables>
           <environmentVariables>
             <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
             <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
             <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
           </environmentVariables>
         </configuration>
-        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <groupId>org.springdoc</groupId>
-      <version>2.7.0</version>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-validation</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <!--        <dependency>-->
-    <!--            <groupId>org.flywaydb</groupId>-->
-    <!--            <artifactId>flyway-core</artifactId>-->
-    <!--        </dependency>-->
-    <dependency>
-      <artifactId>lombok</artifactId>
-      <groupId>org.projectlombok</groupId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <artifactId>querydsl-apt</artifactId>
-      <classifier>jakarta</classifier>
-      <groupId>com.querydsl</groupId>
-      <scope>provided</scope>
-      <version>${querydsl.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>querydsl-jpa</artifactId>
-      <classifier>jakarta</classifier>
-      <groupId>com.querydsl</groupId>
-      <version>${querydsl.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <artifactId>postgresql</artifactId>
-      <groupId>org.postgresql</groupId>
-      <scope>runtime</scope>
-      <version>42.7.4</version>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-testcontainers</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <artifactId>junit-jupiter</artifactId>
-      <groupId>org.testcontainers</groupId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <artifactId>postgresql</artifactId>
-      <groupId>org.testcontainers</groupId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-devtools</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-      <version>3.4.1</version>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-hateoas</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-  </dependencies>
-  <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <groupId>org.springframework.boot</groupId>
-    <relativePath/>
-    <version>3.4.1</version> <!-- lookup parent from repository -->
-  </parent>
 </project>

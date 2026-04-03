@@ -6,6 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -15,43 +18,40 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-
 
 @Entity
 @Table(name = "reservations")
-public class Reservation extends AbstractPersistable<Long> {
+public class Reservation {
 
-  private static final int DESCRIPTION_LENGTH = 350;
-  private static final int RESERVATION_ID_LENGTH = 10;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(name = "reservation_id", unique = true)
-  @NotNull
-  private @ApiKey String reservationId;
+    private static final int DESCRIPTION_LENGTH = 350;
+    private static final int RESERVATION_ID_LENGTH = 10;
 
-  @PastOrPresent
-  private LocalDateTime reservedAt;
+    @Column(name = "reservation_id", unique = true)
+    @NotNull
+    private @ApiKey String reservationId;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-  @JoinColumn(name = "reserved_by", foreignKey = @ForeignKey(name = "fk_user"))
-  private User reservedBy;
+    @PastOrPresent
+    private LocalDateTime reservedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinColumn(name = "reserved_by", foreignKey = @ForeignKey(name = "fk_user"))
+    private User reservedBy;
 
-  private Customer reservedFor;
+    private Customer reservedFor;
 
-  private String reservationDescription;
-  private boolean completed;
+    private String reservationDescription;
+    private boolean completed;
 
-  @PastOrPresent
-  private LocalDateTime lastModified;
-
+    @PastOrPresent
+    private LocalDateTime lastModified;
 }
-

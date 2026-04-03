@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Edit Reservation</title>
+</head>
+<body class="w-screen min-h-screen py-20">
+<h1 class="flex justify-center text-4xl">Edit Reservation</h1>
+<div class="flex justify-center py-10">
+  <form method="post" action="/reservations/edit/{form.reservationId}" class="w-full max-w-lg">
+    <div class="space-y-12">
+      <div class="border-b border-gray-900/10 pb-12">
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+          <div class="sm:col-span-3">
+            <label class="block text-sm font-medium leading-6 text-gray-900" for="connectionNo">Customer - Connection Number</label>
+            <div class="mt-2">
+              <input class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 ring-1 ring-inset ring-gray-300 rounded-md"
+                     id="connectionNo" name="connectionNo" type="text" value="{form.connectionNo}" placeholder="Id">
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label class="block text-sm font-medium leading-6 text-gray-900" for="completed">Status</label>
+            <div class="mt-2">
+              <label for="completed">Closed</label>
+              <input id="completed" name="completed" type="checkbox" style="margin: 0px 0px 1px 10px"
+                     {#if form.completed}checked{/if}>
+            </div>
+          </div>
+
+          <div class="col-span-full">
+            <label class="block text-sm font-medium leading-6 text-gray-900" for="description">Description</label>
+            <div class="mt-2">
+              <textarea class="block w-full rounded-md border-0 py-1.5 px-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        id="description" name="description" rows="3">{form.description}</textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 flex items-center justify-end gap-x-6">
+      <a class="text-sm font-semibold leading-6 text-gray-900" href="/reservations">Cancel</a>
+      <button class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+              type="submit">Save</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

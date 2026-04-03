@@ -1,12 +1,14 @@
 package at.spengergasse.sj2324seedproject.persistence;
 
 import at.spengergasse.sj2324seedproject.domain.StorageObjectMeta;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Optional;
 
-@Repository
+@ApplicationScoped
+public class StorageObjectMetaRepository implements PanacheRepository<StorageObjectMeta> {
 
-public interface StorageObjectMetaRepository extends JpaRepository<StorageObjectMeta, Long>{
-
-    StorageObjectMeta findByNameContainsIgnoreCase(String name);
+    public Optional<StorageObjectMeta> findByNameContainsIgnoreCase(String name) {
+        return find("LOWER(name) LIKE LOWER(?1)", "%" + name + "%").firstResultOptional();
+    }
 }

@@ -2,90 +2,95 @@ package at.spengergasse.sj2324seedproject.presentation.www.reservations;
 
 import at.spengergasse.sj2324seedproject.presentation.api.reservations.ReservationDTO;
 import at.spengergasse.sj2324seedproject.service.ReservationService;
-import jakarta.validation.Valid;
+import io.quarkus.qute.CheckedTemplate;
+import io.quarkus.qute.TemplateInstance;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-@RequiredArgsConstructor
-
-@Controller
-@RequestMapping(ReservationController.BASE_URL)
+@ApplicationScoped
+@Path(ReservationController.BASE_URL)
 public class ReservationController {
 
-  protected static final String BASE_URL = "/reservations";
-  private final ReservationService reservationService;
+    protected static final String BASE_URL = "/reservations";
 
-  @GetMapping
-  public String getReservations(Model model) {
-    List<ReservationDTO> reservations =
-        reservationService.fetchReservations(Optional.empty()).stream().map(ReservationDTO::new)
+    @Inject
+    ReservationService reservationService;
+
+    @CheckedTemplate
+    public static class Templates {
+        public static native TemplateInstance list(List<ReservationDTO> reservations);
+        public static native TemplateInstance newReservation(CreateReservationForm form);
+        public static native TemplateInstance edit(EditReservationForm form);
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance getReservations() {
+        List<ReservationDTO> reservations = reservationService
+            .fetchReservations(Optional.empty())
+            .stream()
+            .map(ReservationDTO::new)
             .toList();
-
-    model.addAttribute("reservations", reservations);
-
-    return "reservations/list";
-  }
-
-  @GetMapping("/edit/{id}")
-  public String editReservation(@PathVariable String id, Model model) {
-    return reservationService.getReservationByReservationID(
-            id).map(EditReservationForm::create).map(form -> model.addAttribute("form", form)).map(_ ->
-            "reservations/edit")
-        .orElse("redirect:reservations");
-
-  }
-
-  @GetMapping("/delete/{id}")
-  public String deleteReservation(@PathVariable String id) {
-    reservationService.removeReservation(id);
-    return "redirect:/reservations";
-  }
-
-  @GetMapping("/new")
-  public ModelAndView showNewReservationForm() {
-    var mav = new ModelAndView();
-    mav.addObject("form", CreateReservationForm.create());
-    mav.setViewName("reservations/new");
-    return mav;
-  }
-
-  @PostMapping("/edit/{id}")
-  public String handleNewReservationFormSubmission(@PathVariable String id,
-      @Valid @ModelAttribute(name = "form") EditReservationForm form,
-      BindingResult bindingResult) {
-
-    if (bindingResult.hasErrors()) {
-      return "reservations/new";
+        return Templates.list(reservations);
     }
 
-    reservationService.updateReservation(id, form.description(),
-        form.connectionNo(), form.completed());
-
-    return "redirect:/reservations";
-  }
-
-  @PostMapping("/new")
-  public String handleNewReservationFormSubmission(
-      @Valid @ModelAttribute(name = "form") CreateReservationForm form,
-      BindingResult bindingResult) {
-
-    if (bindingResult.hasErrors()) {
-      return "reservations/new";
+    @GET
+    @Path("/edit/{id}")
+    @Produces(MediaType.TEXT_HTML)
+    public Response editReservation(@PathParam("id") String id) {
+        return reservationService.getReservationByReservationID(id)
+            .map(EditReservationForm::create)
+            .map(form -> Response.ok(Templates.edit(form)).build())
+            .orElse(Response.seeOther(URI.create(BASE_URL)).build());
     }
 
-    reservationService.createReservation(form.reservationDescription(), form.connectionNo());
+    @GET
+    @Path("/delete/{id}")
+    public Response deleteReservation(@PathParam("id") String id) {
+        reservationService.removeReservation(id);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
 
-    return "redirect:/reservations";
-  }
+    @GET
+    @Path("/new")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance showNewReservationForm() {
+        return Templates.newReservation(CreateReservationForm.create());
+    }
 
+    @POST
+    @Path("/edit/{id}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response handleEditReservationFormSubmission(
+        @PathParam("id") String id,
+        @FormParam("description") String description,
+        @FormParam("connectionNo") String connectionNo,
+        @FormParam("completed") boolean completed) {
+
+        reservationService.updateReservation(id, description, connectionNo, completed);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
+
+    @POST
+    @Path("/new")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response handleNewReservationFormSubmission(
+        @FormParam("connectionNo") String connectionNo,
+        @FormParam("reservationDescription") String reservationDescription) {
+
+        reservationService.createReservation(reservationDescription, connectionNo);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
 }

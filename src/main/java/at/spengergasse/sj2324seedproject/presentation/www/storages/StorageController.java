@@ -2,88 +2,98 @@ package at.spengergasse.sj2324seedproject.presentation.www.storages;
 
 import at.spengergasse.sj2324seedproject.domain.Storage;
 import at.spengergasse.sj2324seedproject.service.StorageService;
-import jakarta.validation.Valid;
+import io.quarkus.qute.CheckedTemplate;
+import io.quarkus.qute.TemplateInstance;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-@RequiredArgsConstructor
-
-@Controller
-@RequestMapping(StorageController.BASE_URL)
+@ApplicationScoped
+@Path(StorageController.BASE_URL)
 public class StorageController {
 
-  protected static final String BASE_URL = "/storages";
-  private final StorageService storageService;
+    protected static final String BASE_URL = "/storages";
 
-  @GetMapping
-  public String getStorages(Model model) {
-    List<Storage> storages = storageService.fetchStorage(Optional.empty());
-    model.addAttribute("storages", storages);
+    @Inject
+    StorageService storageService;
 
-    return "storages/list";
-  }
-
-
-  @GetMapping("/new")
-  public ModelAndView showNewStorageForm() {
-    var mav = new ModelAndView();
-    mav.addObject("form", CreateStorageForm.create());
-    mav.setViewName("create");
-    return mav;
-  }
-
-  @PostMapping("/new")
-  public String handleNewStorageFormSubmission(
-      @Valid @ModelAttribute(name = "form") CreateStorageForm form,
-      BindingResult bindingResult) {
-
-    if (bindingResult.hasErrors()) {
-      return "storages/new";
+    @CheckedTemplate
+    public static class Templates {
+        public static native TemplateInstance list(List<Storage> storages);
+        public static native TemplateInstance newStorage(CreateStorageForm form);
+        public static native TemplateInstance edit(EditStorageForm form);
     }
 
-    storageService.createStorage(form.name(), form.street(), form.number(),
-        form.addressAddition(), form.zipcode(), form.city());
-    return "redirect:/storages";
-  }
-
-
-  @GetMapping("/edit/{id}")
-  public String editStorage(@PathVariable Long id, Model model) {
-    return storageService.getStorageById(
-                                 id).map(EditStorageForm::create).map(form -> model.addAttribute("form", form)).map(_ ->
-                                                                                                                            "storages/edit")
-                         .orElse("redirect:reservations");
-  }
-  @PostMapping("/edit/{id}")
-  public String handleNewStorageFormSubmission(@PathVariable Long id,
-      @Valid @ModelAttribute(name = "form") EditStorageForm form,
-      BindingResult bindingResult) {
-
-    if (bindingResult.hasErrors()) {
-      return "redirect:/storage/{id}";
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance getStorages() {
+        List<Storage> storages = storageService.fetchStorage(Optional.empty());
+        return Templates.list(storages);
     }
 
-    storageService.updateStorage(form.id(), form.name(), form.addressAddition(), form.street(),
-        form.number(), form.zipcode(), form.city());
+    @GET
+    @Path("/new")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance showNewStorageForm() {
+        return Templates.newStorage(CreateStorageForm.create());
+    }
 
-    return "redirect:/storages";
-  }
+    @POST
+    @Path("/new")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response handleNewStorageFormSubmission(
+        @FormParam("name") String name,
+        @FormParam("street") String street,
+        @FormParam("number") Integer number,
+        @FormParam("addressAddition") String addressAddition,
+        @FormParam("zipcode") Integer zipcode,
+        @FormParam("city") String city) {
 
-  @GetMapping("/delete/{id}")
-  public String deleteStorage(@PathVariable Long id) {
-    storageService.removeStorage(id);
-    return "redirect:/storages";
-  }
+        storageService.createStorage(name, street, number, addressAddition, zipcode, city);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
 
+    @GET
+    @Path("/edit/{id}")
+    @Produces(MediaType.TEXT_HTML)
+    public Response editStorage(@PathParam("id") Long id) {
+        return storageService.getStorageById(id)
+            .map(EditStorageForm::create)
+            .map(form -> Response.ok(Templates.edit(form)).build())
+            .orElse(Response.seeOther(URI.create(BASE_URL)).build());
+    }
 
+    @POST
+    @Path("/edit/{id}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response handleEditStorageFormSubmission(
+        @PathParam("id") Long id,
+        @FormParam("name") String name,
+        @FormParam("addressAddition") String addressAddition,
+        @FormParam("street") String street,
+        @FormParam("number") Integer number,
+        @FormParam("zipcode") Integer zipcode,
+        @FormParam("city") String city) {
+
+        storageService.updateStorage(id, name, addressAddition, street, number, zipcode, city);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
+
+    @GET
+    @Path("/delete/{id}")
+    public Response deleteStorage(@PathParam("id") Long id) {
+        storageService.removeStorage(id);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
 }

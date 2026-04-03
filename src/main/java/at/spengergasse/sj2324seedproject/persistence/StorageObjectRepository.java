@@ -1,27 +1,32 @@
 package at.spengergasse.sj2324seedproject.persistence;
 
 import at.spengergasse.sj2324seedproject.domain.StorageObject;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface StorageObjectRepository extends JpaRepository<StorageObject, Long> {
+@ApplicationScoped
+public class StorageObjectRepository implements PanacheRepository<StorageObject> {
 
-  StorageObject findAllByMacAddress(String mac);
+    public Optional<StorageObject> findByMacAddress(String mac) {
+        return find("macAddress", mac).firstResultOptional();
+    }
 
-  Optional<StorageObject> findStorageObjectByMacAddress(String mac);
+    public Optional<StorageObject> findByApiKeyID(String key) {
+        return find("apiKeyID", key).firstResultOptional();
+    }
 
-  StorageObject findByMacAddressContaining(Optional<String> mac);
+    public void deleteByApiKeyID(String key) {
+        delete("apiKeyID", key);
+    }
 
-  void deleteStorageObjectByApiKeyID(String key);
-
-  Optional<StorageObject> findStorageObjectByApiKeyID(String key);
-
-  @Query("SELECT stoo " + "FROM StorageObject stoo "
-      + "LEFT JOIN Storage sto ON stoo.storedStorage.id = sto.id " + "WHERE sto IS NOT NULL "
-      + "AND ( LOWER( CONCAT(stoo.apiKeyID, ' ', stoo.macAddress, ' ', stoo.remark, ' ', stoo.serialNumber, ' ', stoo.projectDevice, ' ', stoo.storedAtCustomer)) LIKE :keyword )")
-  List<StorageObject> searchStoo(String keyword); //TODO
+    public List<StorageObject> searchStorageObjects(String keyword) {
+        return list(
+            "SELECT stoo FROM StorageObject stoo "
+                + "LEFT JOIN Storage sto ON stoo.storedStorage.id = sto.id "
+                + "WHERE sto IS NOT NULL "
+                + "AND ( LOWER( CONCAT(stoo.apiKeyID, ' ', stoo.macAddress, ' ', stoo.remark, ' ', stoo.serialNumber, ' ', stoo.projectDevice, ' ', stoo.storedAtCustomer)) LIKE :keyword )",
+            io.quarkus.panache.common.Parameters.with("keyword", keyword));
+    }
 }

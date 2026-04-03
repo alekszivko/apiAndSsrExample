@@ -2,33 +2,32 @@ package at.spengergasse.sj2324seedproject.presentation.api;
 
 import at.spengergasse.sj2324seedproject.presentation.api.dtos.CustomerDTO;
 import at.spengergasse.sj2324seedproject.service.CustomerService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-@RequiredArgsConstructor
-
-@RestController
-@RequestMapping(CustomerRestController.BASE_URL)
+@ApplicationScoped
+@Path(CustomerRestController.BASE_URL)
+@Produces(MediaType.APPLICATION_JSON)
 public class CustomerRestController {
 
-  protected static final String BASE_URL = "/api/customers";
+    protected static final String BASE_URL = "/api/customers";
 
-  private final CustomerService customerService;
+    @Inject
+    CustomerService customerService;
 
-
-  @GetMapping
-  public ResponseEntity<CustomerDTO> fetchCustomerData(
-      @RequestParam String connectionNo) {
-    if (connectionNo == null) {
-      return ResponseEntity.badRequest().build();
-    } else {
-      return customerService.retrieveCustomerData(connectionNo)
-          .map(ResponseEntity::ok)
-          .orElseGet(() -> ResponseEntity.notFound().build());
+    @GET
+    public Response fetchCustomerData(@QueryParam("connectionNo") String connectionNo) {
+        if (connectionNo == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        return customerService.retrieveCustomerData(connectionNo)
+            .map(dto -> Response.ok(dto).build())
+            .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
-  }
 }

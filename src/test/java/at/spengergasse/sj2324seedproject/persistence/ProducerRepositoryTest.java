@@ -2,42 +2,36 @@ package at.spengergasse.sj2324seedproject.persistence;
 
 import at.spengergasse.sj2324seedproject.domain.Producer;
 import at.spengergasse.sj2324seedproject.fixture.FixtureFactory;
+import io.quarkus.test.TestTransaction;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@QuarkusTest
+@TestTransaction
 public class ProducerRepositoryTest {
 
-
-    @Autowired
+    @Inject
     private ProducerRepository repository;
 
     @Test
-    void ensure_save_producer_into_DB(){
+    void ensure_save_producer_into_DB() {
 
         //given
         Producer producer1 = FixtureFactory.producerFixture();
 
-
-
-        Producer prod =  Producer.builder()
-                                 .shortname("shortname1")
-                                 .name("name1")
-                                 .build();
+        Producer prod = Producer.builder()
+                                .shortname("shortname1")
+                                .name("name1")
+                                .build();
 
         //when
-        var saved = repository.saveAndFlush(producer1);
-//        var saved2 = repository.save(producer2);
-        var saved3 = repository.save(prod);
-
+        repository.persist(producer1);
+        repository.persist(prod);
 
         //then
-        assertThat(repository.findById(saved.getId()).get()).isSameAs(producer1);
-//        assertThat(repository.findById(saved3.getId())).isSameAs(prod);
-
-
+        assertThat(repository.findById(producer1.getId())).isSameAs(producer1);
     }
 }

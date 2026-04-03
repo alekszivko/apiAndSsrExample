@@ -1,43 +1,41 @@
 package at.spengergasse.sj2324seedproject.presentation.api;
 
-import static at.spengergasse.sj2324seedproject.presentation.api.StorageObjectRestController.BASE_URL;
-
 import at.spengergasse.sj2324seedproject.presentation.api.dtos.StorageObjectDTO;
 import at.spengergasse.sj2324seedproject.service.StorageObjectService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-
-@RequiredArgsConstructor
-@RestController
-@RequestMapping(BASE_URL)
+@ApplicationScoped
+@Path(StorageObjectRestController.BASE_URL)
+@Produces(MediaType.APPLICATION_JSON)
 public class StorageObjectRestController {
 
-  protected static final String BASE_URL = "/api/storageObjects";
+    protected static final String BASE_URL = "/api/storageObjects";
 
+    @Inject
+    StorageObjectService storageObjectService;
 
-  private final StorageObjectService storageObjectService;
+    @GET
+    public List<StorageObjectDTO> fetchStorageObjects() {
+        return storageObjectService.findAll()
+            .stream()
+            .map(StorageObjectDTO::new)
+            .toList();
+    }
 
-  @GetMapping
-  public HttpEntity<List<StorageObjectDTO>> fetchStorageObjects() {
-    return ResponseEntity.ok(storageObjectService.findAll()
-        .stream()
-        .map(StorageObjectDTO::new)
-        .toList());
-
-  }
-
-  @GetMapping({"/mac"})
-  public ResponseEntity<StorageObjectDTO> fetchOneStorageObjectByMAC(String mac) {
-
-    return storageObjectService.findStorageObjectByMac(mac).map(StorageObjectDTO::new)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.noContent()
-            .build());
-  }
+    @GET
+    @Path("/mac")
+    public Response fetchOneStorageObjectByMAC(@QueryParam("mac") String mac) {
+        return storageObjectService.findStorageObjectByMac(mac)
+            .map(StorageObjectDTO::new)
+            .map(dto -> Response.ok(dto).build())
+            .orElse(Response.noContent().build());
+    }
 }

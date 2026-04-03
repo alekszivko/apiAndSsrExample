@@ -3,75 +3,68 @@ package at.spengergasse.sj2324seedproject.service;
 import at.spengergasse.sj2324seedproject.domain.Customer;
 import at.spengergasse.sj2324seedproject.domain.Reservation;
 import at.spengergasse.sj2324seedproject.foundation.ApiKeyGenerator;
-import at.spengergasse.sj2324seedproject.persistence.UserRepository;
 import at.spengergasse.sj2324seedproject.persistence.reservations.ReservationRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
-@Service
-@RequiredArgsConstructor
+@Slf4j
+@ApplicationScoped
+@Transactional
 public class ReservationService {
 
-  private final ReservationRepository reservationRepository;
-  private final ApiKeyGenerator idGenerator;
-  private final UserRepository userRepository;
+    @Inject
+    ReservationRepository reservationRepository;
 
+    @Inject
+    ApiKeyGenerator idGenerator;
 
-  public List<Reservation> fetchReservations(Optional<Boolean> completed) {
-    return completed.map(reservationRepository::getReservationsByCompleted)
-        .orElseGet(reservationRepository::findAll);
+    public List<Reservation> fetchReservations(Optional<Boolean> completed) {
+        return completed.map(reservationRepository::findByCompleted)
+            .orElseGet(reservationRepository::listAll);
+    }
 
+    public List<Reservation> getReservationByUserID(String userId) {
+        return reservationRepository.findByReservedByUserId(userId);
+    }
 
-  }
+    public Reservation createReservation(String description, String connectionNo) {
+        Reservation reservation = Reservation.builder()
+            .reservationId(idGenerator.getRandomKey(10))
+            .reservationDescription(description)
+            .reservedAt(LocalDateTime.now())
+            .completed(false)
+            .lastModified(LocalDateTime.now())
+            .reservedFor(Customer.builder()
+                .connectionNo(connectionNo)
+                .build())
+            .build();
+        reservationRepository.persist(reservation);
+        return reservation;
+    }
 
-  public List<Reservation> getReservationByUserID(String userId) {
-    return reservationRepository.getReservationsByReservedBy_UserId(userId);
-  }
+    public Optional<Reservation> getReservationByReservationID(String reservationID) {
+        return reservationRepository.findByReservationId(reservationID);
+    }
 
-  @Transactional
-  public Reservation createReservation(String description, String connectionNo) {
-    return reservationRepository.save(Reservation.builder()
-        .reservationId(idGenerator.getRandomKey(10))
-        .reservationDescription(description)
-        .reservedAt(LocalDateTime.now())
-        .completed(false)
-        .lastModified(LocalDateTime.now())
-        .reservedFor(Customer.builder()
-            .connectionNo(connectionNo)
-            .build())
-        .build());
-  }
+    public void removeReservation(String reservationID) {
+        reservationRepository.deleteByReservationId(reservationID);
+    }
 
-  public Optional<Reservation> getReservationByReservationID(String reservationID) {
-    return reservationRepository.getReservationByReservationId(reservationID);
-  }
-
-  @Transactional
-  public void removeReservation(String reservationID) {
-    reservationRepository.deleteByReservationId(reservationID);
-  }
-
-
-  @Transactional
-  public Reservation updateReservation(String reservationId, String description,
-      String connectionNo, boolean completed) {
-    return reservationRepository.getReservationByReservationId(reservationId).map(r -> {
-      r.setReservationDescription(description);
-      r.setReservedFor(Customer.builder().connectionNo(connectionNo).build());
-      r.setLastModified(LocalDateTime.now());
-      r.setCompleted(completed);
-      return r;
-    }).orElseThrow(
-        () -> new IllegalArgumentException("Reservation with reservationId " + reservationId + " "
-            + "not "
-            + "found"));
-  }
-
-
+    public Reservation updateReservation(String reservationId, String description,
+        String connectionNo, boolean completed) {
+        return reservationRepository.findByReservationId(reservationId).map(r -> {
+            r.setReservationDescription(description);
+            r.setReservedFor(Customer.builder().connectionNo(connectionNo).build());
+            r.setLastModified(LocalDateTime.now());
+            r.setCompleted(completed);
+            return r;
+        }).orElseThrow(
+            () -> new IllegalArgumentException(
+                "Reservation with reservationId " + reservationId + " not found"));
+    }
 }

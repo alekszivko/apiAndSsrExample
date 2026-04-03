@@ -1,28 +1,35 @@
 package at.spengergasse.sj2324seedproject.domain;
-//Implemented by MM
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.AbstractPersistable;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-
 
 @Entity
-@Table(name ="storageObjectHistory")
-public class StorageObjectHistory extends AbstractPersistable<Long> {
+@Table(name = "storageObjectHistory")
+public class StorageObjectHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_storageObject", foreignKey = @ForeignKey(name = "fk_storageObejct_2_storageObjectHistory"))
@@ -38,11 +45,4 @@ public class StorageObjectHistory extends AbstractPersistable<Long> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "fk_reservierungen", foreignKey = @ForeignKey(name = "fk_reservierung_2_storageObjectHistory"))
     private Reservation reservation;
-
-
-
-
-
-
-
 }

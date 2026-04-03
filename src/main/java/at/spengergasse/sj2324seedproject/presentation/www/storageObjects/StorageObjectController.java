@@ -1,119 +1,98 @@
 package at.spengergasse.sj2324seedproject.presentation.www.storageObjects;
 
-import static at.spengergasse.sj2324seedproject.presentation.www.storageObjects.StorageObjectController.BASE_URL;
-
 import at.spengergasse.sj2324seedproject.domain.StorageObject;
 import at.spengergasse.sj2324seedproject.service.StorageObjectService;
-import jakarta.validation.Valid;
+import io.quarkus.qute.CheckedTemplate;
+import io.quarkus.qute.TemplateInstance;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequiredArgsConstructor
-@RequestMapping(BASE_URL)
-public class StorageObjectController implements RedirectForwardSupport {
+@ApplicationScoped
+@Path(StorageObjectController.BASE_URL)
+public class StorageObjectController {
 
-  public static final String BASE_URL = "/storageObjects";
+    public static final String BASE_URL = "/storageObjects";
 
-  private final StorageObjectService serviceStorageObject;
+    @Inject
+    StorageObjectService serviceStorageObject;
 
-  @GetMapping
-  public String getStorageObject(Model model) {
-    List<StorageObject> storageObjects = serviceStorageObject.findAll();
-    model.addAttribute("storageObjects",
-        storageObjects
-    );
-
-    return "storageObjects/list";
-  }
-
-  @GetMapping("/new")
-  public ModelAndView showNewForm() {
-    var mav = new ModelAndView();
-    mav.addObject("form",
-        CreateStorageObjectForm.create()
-    );
-    mav.setViewName("storageObjects/new");
-    return mav;
-  }
-
-  @PostMapping("/new")
-  public String handleNewFormSubmisson(@Valid
-      @ModelAttribute(name = "form")
-      CreateStorageObjectForm form,
-      BindingResult bindingResult) {
-
-    if (bindingResult.hasErrors()) {
-      return "storageObjects/new";
+    @CheckedTemplate
+    public static class Templates {
+        public static native TemplateInstance list(List<StorageObject> storageObjects);
+        public static native TemplateInstance newStorageObject(CreateStorageObjectForm form);
+        public static native TemplateInstance edit(EditStorageObjectForm form);
     }
 
-    serviceStorageObject.createStorageObject(form.randomKey(),
-        form.storage(),
-        form.serialNr(),
-        form.mac(),
-        form.remark(),
-        form.projectDev(),
-        form.storedAtCu()
-    );
-
-    // Redirect after post pattern / PRG pattern
-    //        List<StorageObject> storageObjects = serviceStorageObject.fetchStorageObjectsList();
-
-    return redirect(BASE_URL);
-  }
-
-  @GetMapping("/edit/{key}")
-  public String showEditForm(
-      @PathVariable
-      String key,
-      Model model) {
-    return serviceStorageObject.getStorageObjectByKey(key)
-        .map(EditStorageObjectForm::create)
-        .map(form -> model.addAttribute("form",
-            form
-        ))
-        .map(_ -> "storageObjects/edit")
-        .orElse(redirect(BASE_URL));
-
-  }
-
-  @PostMapping("/edit/{key}")
-  public String handleEditFormSubmisson(
-      @PathVariable
-      String key,
-      @Valid
-      @ModelAttribute(name = "form")
-      EditStorageObjectForm form,
-      BindingResult bindingResult) {
-
-    if (bindingResult.hasErrors()) {
-      return "storageObjects/new";
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance getStorageObject() {
+        List<StorageObject> storageObjects = serviceStorageObject.findAll();
+        return Templates.list(storageObjects);
     }
-    serviceStorageObject.updateStorageObject(key,
-        form.storage(),
-        form.serialNr(),
-        form.mac(),
-        form.remark(),
-        form.projectDev(),
-        form.storedAtCu()
-    );
-    return redirect(BASE_URL);
-  }
 
-  @GetMapping("/delete/{key}")
-  public String deleteStorageObject(
-      @PathVariable
-      String key) {
-    serviceStorageObject.delete(key);
-    return redirect(BASE_URL);
-  }
+    @GET
+    @Path("/new")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance showNewForm() {
+        return Templates.newStorageObject(CreateStorageObjectForm.create());
+    }
+
+    @POST
+    @Path("/new")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response handleNewFormSubmission(
+        @FormParam("storage") String storage,
+        @FormParam("serialNr") String serialNr,
+        @FormParam("mac") String mac,
+        @FormParam("remark") String remark,
+        @FormParam("projectDev") String projectDev,
+        @FormParam("storedAtCu") String storedAtCu) {
+
+        serviceStorageObject.createStorageObject("", storage, serialNr, mac, remark, projectDev, storedAtCu);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
+
+    @GET
+    @Path("/edit/{key}")
+    @Produces(MediaType.TEXT_HTML)
+    public Response showEditForm(@PathParam("key") String key) {
+        return serviceStorageObject.getStorageObjectByKey(key)
+            .map(EditStorageObjectForm::create)
+            .map(form -> Response.ok(Templates.edit(form)).build())
+            .orElse(Response.seeOther(URI.create(BASE_URL)).build());
+    }
+
+    @POST
+    @Path("/edit/{key}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response handleEditFormSubmission(
+        @PathParam("key") String key,
+        @FormParam("storage") String storage,
+        @FormParam("serialNr") String serialNr,
+        @FormParam("mac") String mac,
+        @FormParam("remark") String remark,
+        @FormParam("projectDev") String projectDev,
+        @FormParam("storedAtCu") String storedAtCu) {
+
+        serviceStorageObject.updateStorageObject(key, storage, serialNr, mac, remark, projectDev, storedAtCu);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
+
+    @GET
+    @Path("/delete/{key}")
+    public Response deleteStorageObject(@PathParam("key") String key) {
+        serviceStorageObject.delete(key);
+        return Response.seeOther(URI.create(BASE_URL)).build();
+    }
 }

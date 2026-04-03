@@ -3,19 +3,20 @@ package at.spengergasse.sj2324seedproject.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import at.spengergasse.sj2324seedproject.domain.Address;
 import at.spengergasse.sj2324seedproject.domain.Storage;
 import at.spengergasse.sj2324seedproject.fixture.FixtureFactory;
+import io.quarkus.test.TestTransaction;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 
-@DataJpaTest
+@QuarkusTest
+@TestTransaction
 class StorageRepositoryTest {
 
-  @Autowired
+  @Inject
   private StorageRepository storageRepository;
 
 
@@ -26,12 +27,12 @@ class StorageRepositoryTest {
     Storage storageGiven = FixtureFactory.storageFixture();
 
     //When
-    var saved = storageRepository.save(storageGiven);
+    storageRepository.persist(storageGiven);
 
     //Then
-    assertThat(saved).isNotNull().isSameAs(storageGiven);
-    assertThat(saved.getId()).isNotNull();
-    assertThat(storageGiven.getAddress()).isEqualTo((saved.getAddress()));
+    assertThat(storageGiven).isNotNull();
+    assertThat(storageGiven.getId()).isNotNull();
+    assertThat(storageGiven.getAddress()).isEqualTo(storageGiven.getAddress());
 
   }
 
@@ -44,14 +45,14 @@ class StorageRepositoryTest {
     storage1.setName("test1");
     Storage storage2 = FixtureFactory.storageFixture();
 
-    storageRepository.saveAll(List.of(storage1, storage2));
+    storageRepository.persist(storage1);
+    storageRepository.persist(storage2);
 
     //When
     List<Storage> found = storageRepository.findAllByNameContainingIgnoreCase(storage1.getName());
 
     //Then
     assertThat(found).containsExactly(storage1);
-
 
   }
 

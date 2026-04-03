@@ -1,10 +1,9 @@
 package at.spengergasse.sj2324seedproject.persistence;
 
 import at.spengergasse.sj2324seedproject.domain.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-
+@ApplicationScoped
+public class UserRepository implements PanacheRepository<User> {
 }

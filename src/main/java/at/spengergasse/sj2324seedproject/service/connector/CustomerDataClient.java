@@ -5,73 +5,57 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-@RequiredArgsConstructor
 @Slf4j
+@ApplicationScoped
+public class CustomerDataClient {
 
-@Component
-public class CustomerDataClient{
+    @Inject
+    @RestClient
+    CustomerDataRestClient restClient;
 
-  private final RestClient httpCustomerData;
-
-
-  //TODO remove get request body, is only for demo purposes (API returns what it gets in the
-  // request body)
-  //TODO connect to API that returns dynamic/"real" Customer data
-  public Optional<CustomerDTO> retrieveCustomerData(String customerId) {
-    log.debug("Retrieving customer data");
-
-    Map<String, Object> customerResp = httpCustomerData.method(HttpMethod.GET)
-        .uri("/anything/{id}", customerId)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(serializeCustomerDto(customerId))
-        .retrieve().toEntity(
-            new ParameterizedTypeReference<Map<String, Object>>() {
-            }).getBody();
-    try {
-      return
-          Optional.of(new ObjectMapper().readValue(customerResp.get("data").toString(),
-              CustomerDTO.class));
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+    //TODO connect to API that returns dynamic/"real" Customer data
+    public Optional<CustomerDTO> retrieveCustomerData(String customerId) {
+        log.debug("Retrieving customer data for id {}", customerId);
+        try {
+            Map<String, Object> customerResp = restClient.getCustomerData(customerId);
+            ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule());
+            CustomerDTO dto = mapper.readValue(
+                customerResp.get("data").toString(), CustomerDTO.class);
+            return Optional.of(dto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse customer data response", e);
+        }
     }
-  }
 
-
-  //TODO remove when connected to real API
-  private String serializeCustomerDto(String customerId) {
-    var mapper =
-        new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+    //TODO remove when connected to real API
+    @SuppressWarnings("unused")
+    private String serializeCustomerDto(String customerId) {
+        var mapper = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
             .registerModule(new JavaTimeModule());
-
-    try {
-      return mapper.writeValueAsString(CustomerDTO.builder()
-          .id(customerId)
-          .firstName("John")
-          .lastName("Doe")
-          .dateOfBirth("01.01.1970")
-          .address("Main Street 1")
-          .country("USA")
-          .city("New York")
-          .zipCode("12345")
-          .phoneNumber("123456789")
-          .email("randomEmail@randomEmail.com")
-          .build());
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException("Could not serialize CustomerDTO to JSON.", e);
+        try {
+            return mapper.writeValueAsString(CustomerDTO.builder()
+                .id(customerId)
+                .firstName("John")
+                .lastName("Doe")
+                .dateOfBirth("01.01.1970")
+                .address("Main Street 1")
+                .country("USA")
+                .city("New York")
+                .zipCode("12345")
+                .phoneNumber("123456789")
+                .email("randomEmail@randomEmail.com")
+                .build());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Could not serialize CustomerDTO to JSON.", e);
+        }
     }
-  }
-
-
 }
-

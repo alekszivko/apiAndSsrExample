@@ -4,98 +4,78 @@ import at.spengergasse.sj2324seedproject.domain.Producer;
 import at.spengergasse.sj2324seedproject.exceptions.ProducerException;
 import at.spengergasse.sj2324seedproject.foundation.Guard;
 import at.spengergasse.sj2324seedproject.persistence.ProducerRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import java.util.*;
-
-@Service
+@ApplicationScoped
 @Transactional
-@RequiredArgsConstructor
 public class ProducerService {
 
-    @Autowired
-    private final ProducerRepository producerRepository;
+    @Inject
+    ProducerRepository producerRepository;
 
+    public List<Producer> fetchProducer(Optional<String> nameParam) {
+        if (nameParam.isPresent()) {
+            List<Producer> prod2 = new ArrayList<>();
+            List<Producer> producerList = producerRepository.listAll();
+            Iterator<Producer> iter = producerList.iterator();
 
-    public List<Producer> fetchProducer(Optional<String> nameParam){
-        List<Producer> prod2 = new ArrayList<>();
-
-        if(nameParam.isPresent()){
-
-            List<Producer>     producerList = producerRepository.findAll();
-            Iterator<Producer> iter         = producerList.iterator();
-
-            Producer probe = Producer.builder().name(nameParam.get()).build();
-
-            Example<Producer> proTemp = Example.of(probe);
-
-
-
-            producerRepository.exists(proTemp);
-            while(iter.hasNext()){
+            while (iter.hasNext()) {
                 Producer temp = iter.next();
-                String toUpperCase1 = temp.getName()
-                                          .toUpperCase();
-                String toUpperCase2 = nameParam.get()
-                                               .toUpperCase();
-                if(toUpperCase1.contains(toUpperCase2)){
+                if (temp.getName().toUpperCase().contains(nameParam.get().toUpperCase())) {
                     prod2.add(temp);
                 }
             }
 
-            if(nameParam.isPresent() && prod2.isEmpty()){
-                return producerRepository.findAll();
+            if (prod2.isEmpty()) {
+                return producerRepository.listAll();
             }
-        }else{
-            return producerRepository.findAll();
+            return prod2;
+        } else {
+            return producerRepository.listAll();
         }
-        return prod2;
     }
 
-    public List<Producer> fetchProducerName(Optional<String> namePart){
-        return producerRepository.findProducerByName(namePart);
-    }
-
-    public Producer saveProducer(String shortName,
-                                 String name){
+    public Producer saveProducer(String shortName, String name) {
         Producer producer = Producer.builder()
-                                    .shortname(shortName)
-                                    .name(name)
-                                    .build();
-
-        return producerRepository.save(producer);
-
+            .shortname(shortName)
+            .name(name)
+            .build();
+        producerRepository.persist(producer);
+        return producer;
     }
 
     public void deleteProducer(String shortName) throws ProducerException {
-        if(shortName != null){
-            producerRepository.deleteProducerByShortname(shortName);
-        }else{
+        if (shortName != null) {
+            producerRepository.deleteByShortname(shortName);
+        } else {
             throw new ProducerException("ShortName is null");
         }
     }
 
     public Producer deleteProducerB(String shortName) throws ProducerException {
-        if(shortName != null){
-            return producerRepository.deleteProducerByShortname(shortName);
-        }else{
+        if (shortName != null) {
+            Producer producer = producerRepository.findByShortname(shortName)
+                .orElseThrow(() -> new NoSuchElementException("Producer not found: " + shortName));
+            producerRepository.delete(producer);
+            return producer;
+        } else {
             throw new ProducerException("ShortName is null");
         }
     }
 
-    public Producer findProducerByID(Long id){
-        if(Guard.isPositive(id)){
-            return producerRepository.findProducerById(id);
-        }else{
-            throw new NoSuchElementException("Producer id is negativ; therefore, no value is available!");
+    public Producer findProducerByID(Long id) {
+        if (Guard.isPositive(id)) {
+            return producerRepository.findProducerById(id)
+                .orElseThrow(() -> new NoSuchElementException("Producer not found with id: " + id));
+        } else {
+            throw new NoSuchElementException("Producer id is negative; therefore, no value is available!");
         }
     }
-
-//    public Producer findProducerByStringID(String id){
-//        return repositoryProducer.findProducerById(Long.valueOf(id));
-//    }
 }

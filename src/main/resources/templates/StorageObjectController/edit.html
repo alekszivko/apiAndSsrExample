@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <title>Edit Storage Object</title>
+</head>
+<body>
+<div class="container">
+  <h1>Edit Storage Object</h1>
+  <form method="post" action="/storageObjects/edit/{form.randomKey}">
+    <div class="mb-3">
+      <label for="randomKey" class="form-label">Key</label>
+      <input type="text" class="form-control" id="randomKey" name="randomKey" value="{form.randomKey}" readonly>
+    </div>
+    <div class="mb-3">
+      <label for="serialNumber" class="form-label">Serial Number</label>
+      <input type="text" class="form-control" id="serialNumber" name="serialNr" value="{form.serialNr}" required>
+    </div>
+    <div class="mb-3">
+      <label for="storage" class="form-label">Storage</label>
+      <input type="text" class="form-control" id="storage" name="storage" value="{form.storage}">
+    </div>
+    <div class="mb-3">
+      <label for="macAddress" class="form-label">MAC Address</label>
+      <input type="text" class="form-control" id="macAddress" name="mac" value="{form.mac}">
+    </div>
+    <div class="mb-3">
+      <label for="remark" class="form-label">Remark</label>
+      <input type="text" class="form-control" id="remark" name="remark" value="{form.remark}">
+    </div>
+    <div class="mb-3">
+      <label for="projectDevice" class="form-label">Project Device</label>
+      <input type="text" class="form-control" id="projectDevice" name="projectDev" value="{form.projectDev}">
+    </div>
+    <div class="mb-3">
+      <label for="storedAtCu" class="form-label">Customer</label>
+      <input type="text" class="form-control" id="storedAtCu" name="storedAtCu" value="{form.storedAtCu}">
+    </div>
+    <button type="submit" class="btn btn-outline-success">Save</button>
+    <a href="/storageObjects" class="btn btn-outline-danger" role="button">Cancel</a>
+  </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>

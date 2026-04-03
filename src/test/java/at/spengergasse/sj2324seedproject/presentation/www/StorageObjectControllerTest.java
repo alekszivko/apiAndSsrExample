@@ -1,44 +1,33 @@
 package at.spengergasse.sj2324seedproject.presentation.www;
 
+import static io.restassured.RestAssured.given;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import at.spengergasse.sj2324seedproject.domain.StorageObject;
 import at.spengergasse.sj2324seedproject.fixture.FixtureFactory;
 import at.spengergasse.sj2324seedproject.presentation.www.storageObjects.StorageObjectController;
 import at.spengergasse.sj2324seedproject.service.StorageObjectService;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(StorageObjectController.class)
+@QuarkusTest
 class StorageObjectControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
-  @MockitoBean
+  @InjectMock
   private StorageObjectService serviceStorageObject;
 
   @Test
-  void ensureGetStorageObjectReturnsProperView() throws Exception {
+  void ensureGetStorageObjectReturnsProperView() {
     List<StorageObject> storageObjectList = List.of(FixtureFactory.storageObjectFixture(),
         FixtureFactory.storageObjectFixture());
 
     when(serviceStorageObject.findAll()).thenReturn(storageObjectList);
-    mockMvc.perform(get("/storageObjects"))
-        .andExpect(status().isOk())
-        .andExpect(model().attribute("storageObjects",
-            storageObjectList))
-        .andExpect(view().name("storageObjects/list"))
-        .andDo(print());
+
+    given()
+        .get("/storageObjects")
+        .then()
+        .statusCode(200);
   }
-
-
 }

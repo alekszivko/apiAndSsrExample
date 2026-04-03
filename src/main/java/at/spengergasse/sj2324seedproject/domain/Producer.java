@@ -1,26 +1,33 @@
 package at.spengergasse.sj2324seedproject.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.AbstractPersistable;
-
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-
 
 @Entity
 @Table(name = "producers")
-public class Producer extends AbstractPersistable<Long>{
+public class Producer {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private static final int DEFAULT_LENGTH = 55;
 
@@ -32,9 +39,6 @@ public class Producer extends AbstractPersistable<Long>{
     private String shortname;
 
     @NotBlank
-    @Column(name = "producer_name", length =  DEFAULT_LENGTH)
+    @Column(name = "producer_name", length = DEFAULT_LENGTH)
     private String name;
-
-
-
 }
