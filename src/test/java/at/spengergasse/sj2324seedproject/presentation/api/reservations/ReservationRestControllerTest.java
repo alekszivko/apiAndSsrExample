@@ -1,7 +1,6 @@
 package at.spengergasse.sj2324seedproject.presentation.api.reservations;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;

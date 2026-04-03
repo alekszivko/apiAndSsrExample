@@ -7,33 +7,30 @@ import at.spengergasse.sj2324seedproject.persistence.UserRepository;
 import at.spengergasse.sj2324seedproject.persistence.reservations.ReservationRepository;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
 
+    @InjectMocks
     private ReservationService reservationService;
 
-    private @Mock ReservationRepository reservationRepository;
-    private @Mock UserRepository userRepository;
-    private @Mock ApiKeyGenerator idGenerator;
+    @Mock
+    private ReservationRepository reservationRepository;
 
-    @BeforeEach
-    void setup() {
-        assumeThat(reservationRepository).isNotNull();
-        assumeThat(idGenerator).isNotNull();
-        assumeThat(userRepository).isNotNull();
-        this.reservationService = new ReservationService(reservationRepository, idGenerator, userRepository);
-    }
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ApiKeyGenerator idGenerator;
 
     @Test
     void ensureFetchReservationWithoutParamCallsFindAll() {
